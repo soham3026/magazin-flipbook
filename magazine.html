@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>My Magical Flipbook 🌸</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root {
+  --page-w: 700px;
+  --page-h: 460px;
+}
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(180deg, #993abf 0%, #ffffff 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 28px;
+  gap: 28px;
+}
+
+/* Flipbook */
+.stage { perspective: 1600px; width: calc(var(--page-w) + 80px); }
+.book {
+  position: relative;
+  width: var(--page-w);
+  height: var(--page-h);
+  transform-style: preserve-3d;
+  margin: 0 auto;
+  box-shadow: 0 20px 60px rgba(81, 14, 215, 0.12);
+  border-radius: 12px;
+}
+.page, .page * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(.2,.9,.1,1);
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 36px;
+  box-sizing: border-box;
+  color: #e81d1d;
+  font-size: 19px;
+  line-height: 1.6;
+}
+.page.flipped { transform: rotateY(-180deg); }
+
+/* Page colors */
+.page:nth-child(1) { background: linear-gradient(180deg,#f8f2f4,#d3c8c8); }
+.page:nth-child(2) { background: linear-gradient(180deg,#36c842,#fff); }
+.page:nth-child(3) { background: linear-gradient(180deg,#e3f2fd,#fff); }
+.page:nth-child(4) { background: linear-gradient(180deg,#fff3e0,#fff); }
+.page:nth-child(5) { background: linear-gradient(180deg,#f3e5f5,#fff); }
+.page:nth-child(6) { background: linear-gradient(180deg,#f1f8e9,#fff); }
+.page:nth-child(7) { background: linear-gradient(180deg,#e8eaf6,#fff); }
+.page:nth-child(8) { background: linear-gradient(180deg,#fff8e1,#fff); }
+.page:nth-child(9) { background: linear-gradient(180deg,#ede7f6,#fff); }
+.page:nth-child(10){ background: linear-gradient(180deg,#fbe9e7,#fff); }
+
+/* Decorative corner emojis */
+.page::before, .page::after {
+  content: "🌸";
+  position: absolute;
+  opacity: 0.25;
+  font-size: 24px;
+}
+.page::before { top: 14px; left: 16px; }
+.page::after { bottom: 14px; right: 16px; transform: rotate(15deg); }
+
+/* Cover */
+.page.cover {
+  display: flex;
+  align-items: center;
+  
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  background: radial-gradient(circle at center, #eee9ef 0%, #1fabda 100%);
+  font-family: "Georgia", serif;
+  color: #8f1d86;
+}
+.page.cover h1 { font-size: 42px; margin-bottom: 12px; }
+.page.cover p { font-size: 18px; color: #7a1958; }
+
+/* Controls */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 600;
+  background: linear-gradient(180deg, #fff, #f2f2f6);
+  box-shadow: 0 6px 18px rgba(30,20,40,0.06);
+}
+.pager {
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(20,20,40,0.04);
+}
+
+/* QR section */
+.share-box { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+.share-controls {
+  display: flex; align-items: center; gap: 8px; background: #fff;
+  padding: 12px; border-radius: 12px; box-shadow: 0 8px 30px rgba(10,10,20,0.05);
+}
+.share-controls input[type="text"] {
+  width: 320px; padding: 8px; border-radius: 8px; border: 1px solid #eee;
+}
+label.select { display: flex; align-items: center; gap: 6px; }
+
+/* Floating animation */
+.floating {
+  position: absolute;
+  font-size: 18px;
+  opacity: 0.4;
+  animation: floatAnim linear infinite;
+}
+@keyframes floatAnim {
+  0%   { transform: translateY(0) rotate(0deg); opacity:0.5; }
+  100% { transform: translateY(-120vh) rotate(360deg); opacity:0; }
+}
+
+@media (max-width:820px) {
+  :root { --page-w:360px; --page-h:520px; }
+}
+</style>
+</head>
+<body>
+
+<div style="text-align:center;">
+  <h1>📖 My Magical Flipbook</h1>
+  <p style="color:#020206;">BAYKO THIS IS FOR YOU MY LOVE💕 ✨</p>
+</div>
+
+<div class="stage">
+  <div class="book" id="book"></div>
+</div>
+
+<div class="controls">
+  <button id="prevBtn">⟨ Prev</button>
+  <div class="pager" id="pager">Page 1 / 10</div>
+  <button id="nextBtn">Next ⟩</button>
+</div>
+
+<div class="share-box">
+  <div class="share-controls">
+    <input id="hostUrl" type="text" placeholder="Enter hosted URL (e.g. https://yourname.github.io/book.html)">
+    <label class="select"><input type="radio" name="mode" value="direct" checked> Direct</label>
+    <label class="select"><input type="radio" name="mode" value="whatsapp"> WhatsApp</label>
+    <button id="genQR">Generate QR</button>
+  </div>
+  <div id="qrcode" style="width:150px;height:150px;background:#fff;border-radius:10px;padding:12px;"></div>
+</div>
+
+<script>
+const pagesData = [
+  { cover: true, title: "My Dreamy Book", subtitle: "By [AAHO]", text: "" },
+  { text: "Page 1 — our lovely words begin here-AS WE ARE AGING IN OUR WE ALL KNOW WE GET RESPONSIBILTY IN TERMS AND CONDITION. WE HAD GREAT TIME AND FUN DURING OUR FIRST STAGE OF LOVE. WE HAD MULTIPLE DATES EVERY OTHER DAY AND WE HAD GREET BONDING TO OUR LOVE. WE HAD SPEND MORE TIME TOGETHER RATHER THAN ATTENDING COLLEGE. WE USE TO ROAM AND GOSSIP OUR DREAMS. IN THOSE DAYS WE NEVER THOUGHT WE WILL COME THIS CLOSE AND BE TOGETHER TILL OUR SECOND STAGE OF LOVE💕" },
+  { text: "Page 2 — SECOND PHASE WAS BEGIN WHEN WE USED TO HAVE EVERY OTHER DAY FIGHTS, WHICH WASN'T HAVE END. BUT WE HAD ANGRY MOMENT, HEATED CONVERSATION, MY BAD WORDS, BUT IN THAT PHASE OUR LOVE IS TO FADE BUT NOT GETTING OVER EACH OTHER. DURING FIGHTS WE USED ANYTHING WHICH COULD HAVE HAPPEN BUT MENTALIY NOT PHYSICALLY. LIKE THE MOST BEAUTIFUL WORD DURING OUR FIGHT 'BREAKUP' STILL WE USED TO LOVE EACH OTHER AND NEXT DAY WE USE TO REGRET TO SAY THAT WORD AND RETURN TO OWN POLICY AND PROPERTY!!🌸" },
+  { text: "Page 3 — THOUGH WE TRY OUR BEST TO NOT FOUGHT EVERYDAY BUT STILL THE SECOND PHASE OF OUR JOURNEY IS CONTITUE IN FIGHTS TILL NOW. SO LET'S FOR BEST AND WE REDUCED IT AND STAY ALWAYS HAPPY AND MADE MORE MEMORIES. IF WE MAKE MORE VIDEOS OF OUR HARDER AND TREMNDOUS SEX VIDEOS THAN I THINK WE WILL SLEEP WELL AND NOT FIGHT MUCH. I KNOW WE ARE IN TEENAGE LOVE BUT NOW I KNOW YOU KNOW THAT WE ARE GOING TO STAY TOGETHER. HOW MANY TIMES WE FIGHT WE WILL STILL STAY TOGETHER.✨" },
+  { text: "Page 4 — CAN WE JUST STAY HAPPY FOREVER AND FIGHT LESS SO WE BOTH CAN FOUCS ON EVERYTHING. AND WE CAN ROME EVERYWHERE IN THIS COUNTRY TILL WE EARN. I WANT TO EXPERIENCE EVERY FUN WITH YOU AND WANT TO SPEND WHOLE TIME JUST BEIGN WITH YOU BECAUSE IT MAKES ME SO HAPPY AND  I FIND PEACE IN YOU. BUT DON'T BE LATE AND IRRITATE ME. 🌿" },
+  { text: "Page 5 — I KNOW WE HAD DONE EVERYTHING IN OUR RELATIONSHIP WHICH WE SUPPOSE DO NOT AND WE HADE HUGE TROUBLE 2 WEEK BEFORE AND FROM NOW WILL BE IN SAFETY FIRST THEN WE CAN FULL FILL OUR FANTASY. THANK GOD NOTHING HAPPEN. AS WE ARE MOVING FORWARD TOWARDS THE END OF THIS YEAR, I WANT YOU TO LET THIS PHASE OVER AND START THE NEW YEAR WITH NEW EXICTMENT.💖" },
+  { text: "Page 6 — AND I KNOW I'M NOT WRITING FOR YOU LIKE THE FIRST YEAR BUT HONESTLY EVERY THING WE DO IN THE BEGINNING ARE JUST FOR BEGINNING PHASE. I TRY NEW THINGS JUST TO IMPRESS YOU. AS OF NOW WE CAN JUST TYPE FOR EACH OTHER LETTER BUT I WANT TO GIFT YOU EVERTHING SO YOU CAN GIFT ME MY PLEASANT SURPRISE 'HEHE'. 🌼" },
+  { text: "Page 7 — I KNOW I HAD TREMNEDOUS BAD WORDS TO YOU DURING FIGHTS, I HAVE GIVEN TO MUCH BAD WORDS AND FIGHTED WITH YOU. BUT THAT ALL WERE JUST DURING THAT 2-4 HOURS LATER YOU & ME KNOW THAT, AT THE END OF DAY I WILL COME TO YOU ONLY. THAT'S WHY WE ARE STILL TOGETHER AND MAKE EACH MEMORY MEMORABLE.  💌" },
+  { text: "Page 8 — beautiful words from my heart-- I LOVEEEEEEEEEEEEEE YOUUUUUUUUUU BABAYAYYYAYAYYYYYYYYYYY  💫" },
+  { text: "Page 9 — My Heart’s Poem 💖 Your smile paints my skies in gold, A warmth my arms still long to hold. Every glance, a gentle rhyme, That stops the ticking hands of time. In your eyes, I find my home, With you, I never walk alone. You’re my forever, softly shown. 🌹 💭" }];
+
+const book = document.getElementById("book");
+const symbols = ["🌸","💖","✨","🌼","🦋","💞"];
+
+pagesData.forEach((data, i) => {
+  const page = document.createElement("div");
+  page.classList.add("page");
+  if (data.cover) {
+    page.classList.add("cover");
+    page.innerHTML = `<h1>${data.title}</h1><p>${data.subtitle}</p>`;
+  } else {
+    page.textContent = data.text;
+  }
+  page.style.zIndex = 100 - i;
+  book.appendChild(page);
+
+  // floating decorations
+  for(let j=0;j<6;j++){
+    const f=document.createElement("div");
+    f.classList.add("floating");
+    f.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+    f.style.left=Math.random()*100+"%";
+    f.style.bottom="-10%";
+    f.style.fontSize=(14+Math.random()*14)+"px";
+    f.style.animationDuration=(6+Math.random()*8)+"s";
+    f.style.animationDelay=(Math.random()*4)+"s";
+    page.appendChild(f);
+  }
+});
+
+let current=0, total=pagesData.length;
+const pager=document.getElementById("pager");
+function refresh(){
+  document.querySelectorAll(".page").forEach((p,i)=>{
+    if(i<current)p.classList.add("flipped");
+    else p.classList.remove("flipped");
+  });
+  pager.textContent=`Page ${Math.min(current+1,total)} / ${total}`;
+}
+document.getElementById("nextBtn").onclick=()=>{ if(current<total) current++; refresh(); };
+document.getElementById("prevBtn").onclick=()=>{ if(current>0) current--; refresh(); };
+book.onclick=e=>{
+  const x=e.clientX-book.getBoundingClientRect().left;
+  if(x>book.clientWidth/2){ if(current<total) current++; } else { if(current>0) current--; }
+  refresh();
+};
+refresh();
+
+// QR Generator
+document.getElementById("genQR").onclick=()=>{
+  const raw=document.getElementById("hostUrl").value.trim();
+  if(!raw){ alert("Enter hosted URL first."); return; }
+  const mode=document.querySelector("input[name=mode]:checked").value;
+  let payload=raw;
+  if(mode==="whatsapp"){
+    payload='https://wa.me/?text='+encodeURIComponent("Open this magical flipbook 🌸: "+raw);
+  }
+  document.getElementById("qrcode").innerHTML="";
+  new QRCode(document.getElementById("qrcode"),{ text:payload,width:126,height:126 });
+};
+</script>
+</body>
+</html>
